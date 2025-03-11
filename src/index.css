@@ -1,3 +1,25 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@keyframes loadingShimmer {
+    0% {
+      background-position: -200% 0;
+    }
+    100% {
+      background-position: 200% 0;
+    }
+  }
+  
+  .loading {
+    background: linear-gradient(
+      90deg,
+      #d1d5db 25%,
+      #e5e7eb 50%,
+      #d1d5db 75%
+    );
+    background-size: 200% 100%;
+    animation: loadingShimmer 1.5s infinite linear;
+    border-radius: 8px;
+  }
+  

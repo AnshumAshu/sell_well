@@ -1,29 +1,20 @@
-import CardComponent from "./CardComponent";
-import { useState,useEffect } from "react";
+import CardDropDown from "./CardDropDown";
+import { useState } from "react";
 
-const RateCard = () => {
-    const [cards, setCards] = useState([]);
-
-    const populateCards = () => {
-        const newCards = [];
-        for (let i = 1; i <= 15; i++) {
-            newCards.push({
-                name: `Metal ${i}`,
-                price: `$${i * 10}`
-            });
-        }
-        setCards(newCards);
-    };
-
-    useEffect(() => {
-        populateCards();
-    }, []);
-
+const RateCard = ({cardsInfo}) => {
+    const [showIndex,setshowIndex] = useState({value:false,idx:null});
     return (
-        <div className="m-4 p-4 flex flex-wrap justify-center gap-4">
-            {cards.map((card, index) => (
-                <CardComponent key={index} card={card} />
-            ))}
+        <div className="w-2/3 m-auto left-0 right-0 p-4 mt-4">
+            {
+                cardsInfo.map((card, index) => 
+                    <CardDropDown 
+                        key={card.id} 
+                        card={card}  
+                        setshowIndex={() => setshowIndex({value:!(showIndex.idx===index && showIndex.value),idx:index})}
+                        showItems={index===showIndex.idx && showIndex.value}
+                    />
+                )
+            }
         </div>
     )
 };

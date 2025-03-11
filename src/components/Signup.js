@@ -1,55 +1,41 @@
-import { useRef, useState } from "react";
 import Header from "./Header";
-import { useNavigate } from "react-router-dom";
-import { useDispatch } from 'react-redux';
-import { addUser } from '../utils/userSlice';
+import { useState, useRef } from "react";
+import { useNavigate } from "react-router-dom"; 
 
-const Login = () => {
+const Signup = () => {
   const [errorMessage, setErrorMessage] = useState(null);
   const navigate = useNavigate();
-  const emailRef = useRef(null);
-  const passwordRef = useRef(null);
-  const vendorKey = useRef(null);
-  const dispatch = useDispatch();
-  const [isChecked, setIsChecked] = useState(false);
+  const name = useRef(null);
+  const email = useRef(null);
+  const password = useRef(null);
 
-  const handleCheckboxChange = (event) => {
-    setIsChecked(event.target.checked);
-  };
-
-  const handleSignin = async (e) => {
+  const handleSignup = async (e) => {
     e.preventDefault();
 
     try {
-      const response = await fetch("http://localhost:3000/login", {
+      const response = await fetch("http://localhost:3000/signUp", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          email: emailRef.current.value,
-          password: passwordRef.current.value,
+          name: name.current ? name.current.value : "",
+          email: email.current.value,
+          password: password.current.value,
         }),
       });
 
       const result = await response.json();
       if (response.ok) {
-        // Example assuming result contains user information
-        const { user } = result;
-        console.log(user);
-        dispatch(addUser({
-          email: emailRef.current.value,
-          password: passwordRef.current.value,
-        }));
-
-        navigate("/");
+        console.log("Success:", result);
+        // Navigate to the avatar selection page after a successful signup
+        navigate("/select-avatar");
       } else {
-        console.log("HEllo Error")
         setErrorMessage(result.error);
       }
     } catch (error) {
       console.error("Error:", error);
-      setErrorMessage("Something went wrong. Please try again.");
+      setErrorMessage("An error occurred during signup. Please try again.");
     }
   };
 
@@ -64,44 +50,34 @@ const Login = () => {
         />
       </div>
       <form
-        onSubmit={handleSignin}
+        onSubmit={handleSignup}
         className="absolute p-8 mx-auto left-0 right-0 top-1/2 transform -translate-y-1/2 rounded-lg text-black flex flex-col w-11/12 sm:w-3/5 md:w-2/5 lg:w-1/3 xl:w-1/4"
       >
         <div className="flex items-center justify-center">
           <h1 className="font-bold text-2xl md:text-3xl lg:text-4xl p-6">
-            Sign In
+            Sign Up
           </h1>
         </div>
+        <label className="font-bold text-lg">Full Name</label>
+        <input
+          ref={name}
+          type="text"
+          className="mb-4 p-2 w-full bg-gray-500 bg-opacity-30 rounded-lg"
+        />
         <label className="font-bold text-lg">Email Address</label>
         <input
-          ref={emailRef}
+          ref={email}
           type="email"
           className="mb-4 p-2 w-full bg-gray-500 bg-opacity-30 rounded-lg"
           required
         />
         <label className="font-bold text-lg">Password</label>
         <input
-          ref={passwordRef}
+          ref={password}
           type="password"
           className="mb-4 p-2 w-full bg-gray-500 bg-opacity-30 rounded-lg"
           required
         />
-        <div className="mb-4">
-          <input
-            type="checkbox"
-            onChange={handleCheckboxChange}
-          />
-          <label className="px-2">Master Login</label>
-        </div>
-        {isChecked && <div>
-          <label className="font-bold text-lg">Enter Master Passcode</label>
-          <input
-            ref={vendorKey}
-            type="password"
-            className="mb-4 p-2 w-full bg-gray-500 bg-opacity-30 rounded-lg"
-            required
-          />
-        </div>}
         {errorMessage && (
           <p className="my-4 font-bold text-lg text-red-500">{errorMessage}</p>
         )}
@@ -109,17 +85,17 @@ const Login = () => {
           type="submit"
           className="my-4 p-2 w-full bg-[#e2b808] rounded-lg font-semibold hover:bg-[#d1a507] transition-colors"
         >
-          Sign in now
+          Sign up now
         </button>
         <p
-          className="my-4 cursor-pointer font-bold text-lg text-center"
-          onClick={() => navigate("/signup")}
+          className="my-4 cursor-pointer font-bold text-base text-center"
+          onClick={() => navigate("/login")}
         >
-          Not Registered? Sign Up Now
+          Already Registered? Sign In Now
         </p>
       </form>
     </div>
   );
 };
 
-export default Login;
+export default Signup;

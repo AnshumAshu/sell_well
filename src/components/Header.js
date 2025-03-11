@@ -1,102 +1,169 @@
 import Logo from '../images/logo.jpeg';
-import BG_IMG from '../images/bg-img.jpeg';
 import { useNavigate } from 'react-router-dom';
-import { useContext, useState } from 'react';
-import UserActive from '../utils/userActiveContext';
-import LoginPage from '../utils/signInContext';
+import { useState, useEffect, useRef } from 'react';
+import { useSelector } from 'react-redux';
+import { useLocation } from 'react-router-dom';
+import UserCard from './UserCard';
 
-const Header = () => {
+const Header = ({ footerRef }) => {
     const navigate = useNavigate();
-    const {isActive, setsignedIn} = useContext(UserActive);
-    const {isSignInPage, setsignInPage} = useContext(LoginPage);
-    const [isDropdownOpen,setIsDropdownOpen] = useState(false);
+    const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+    const [showScrollTop, setShowScrollTop] = useState(false); // State for "Scroll to Top" button visibility
+    const user = useSelector((store) => store.user);
+    const location = useLocation();
+    const isAuthPage = location.pathname === '/login' || location.pathname === '/signup';
+    const isVendorPage = location.pathname === '/vendor/home';
+    const dropdownRef = useRef(null); // Reference for dropdown menu
 
-    const handleSignOut = () => {
-        isActive ? setsignedIn(false):setsignedIn(true);
-        setsignInPage(!isSignInPage);
-        navigate("/login");
-    }
+    const toggleDropdown = () => {
+        setIsDropdownOpen((prev) => !prev);
+    };
+
+    // Close dropdown when clicking outside
+    useEffect(() => {
+        const handleClickOutside = (event) => {
+            if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+                setIsDropdownOpen(false);
+            }
+        };
+
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => {
+            document.removeEventListener('mousedown', handleClickOutside);
+        };
+    }, [dropdownRef]);
+
+    // Handle scroll to show/hide "Scroll to Top" button
+    useEffect(() => {
+        const handleScroll = () => {
+            if (window.scrollY > 200) {
+                setShowScrollTop(true);
+            } else {
+                setShowScrollTop(false);
+            }
+        };
+
+        window.addEventListener('scroll', handleScroll);
+        return () => {
+            window.removeEventListener('scroll', handleScroll);
+        };
+    }, []);
+
+    const scrollToFooter = () => {
+        window.scrollTo({
+            top: document.documentElement.scrollHeight,
+            behavior: 'smooth'
+        });
+    };
+
+    const scrollToTop = () => {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    };
 
     return (
-        // <div className='absolute w-full flex flex-wrap justify-between bg-gradient-to-tl from-black z-10 bg-opacity-50'>
-        //     <img src={Logo} alt="logo" className='w-16 m-4'/>
-            
-        //     {!isSignInPage && 
-        //         <div className="flex justify-center items-center">
-        //             <ul className="flex">
-        //                 <li className="p-4">Home</li>
-        //                 <li className="p-4">Check Scrap Rate</li>
-        //                 <li className="p-4">Sell Scrap</li>
-        //             </ul>
-        //             {isActive && 
-        //                 <img 
-        //                     className="w-14"
-        //                     alt="user" 
-        //                     src={BG_IMG}
-        //                 />
-        //             }
-        //             <button 
-        //                 className="font-bold px-2" 
-        //                 onClick={handleSignOut}>
-        //                 {isActive ? "Sign Out":"Sign Up"}
-        //             </button>
-        //         </div>
-        //     }
-        // </div>
-        <div className='absolute w-full flex flex-wrap justify-between items-center px-4 z-10'>
-            <img src={Logo} alt="logo" className='w-12 sm:w-16 m-2 sm:m-4' />
-            
-            {!isSignInPage && 
-                <div className="relative flex items-center space-x-4">
-                    {/* Dropdown menu for smaller screens */}
-                    <div className="sm:hidden">
-                        <button 
-                            className="font-bold px-2 py-1 bg-opacity-80 bg-gray-700 rounded hover:bg-gray-600 transition-colors"
-                            onClick={() => setIsDropdownOpen(!isDropdownOpen)}>
+        <div className='absolute w-full flex flex-wrap justify-between items-center px-4 py-2 z-10'>
+            <img src={Logo} alt="logo" className='w-12 sm:w-16 m-2 z-20' />
+
+            {!isAuthPage && !isVendorPage && (
+                <div className="relative flex items-center space-x-4 sm:space-x-6 lg:space-x-8">
+                    {/* Dropdown menu for smaller screens and tablets */}
+                    <div className="relative sm:hidden">
+                        <button
+                            className="font-bold px-3 py-2 bg-[#3ab44a] text-white rounded transition-colors"
+                            onClick={toggleDropdown}
+                        >
                             Menu
                         </button>
-                        {isDropdownOpen && 
-                            <ul className="absolute right-0 mt-2 w-48 bg-white text-black rounded-lg shadow-lg">
-                                <li 
-                                    className="block px-4 py-2 text-sm hover:bg-gray-200 cursor-pointer" onClick={() => navigate("/")}>
-                                        Home
-                                </li>
-                                <li 
-                                    className="block px-4 py-2 text-sm hover:bg-gray-200 cursor-pointer" onClick={() => navigate("/scrap-rate")}>
-                                        Check Scrap Rate
-                                </li>
-                                <li 
+                        {isDropdownOpen && (
+                            <ul
+                                ref={dropdownRef} // Attach ref to the dropdown
+                                className="absolute right-0 mt-2 w-48 bg-white text-black rounded-lg shadow-lg z-20"
+                            >
+                                <li
                                     className="block px-4 py-2 text-sm hover:bg-gray-200 cursor-pointer"
-                                    onClick={() => navigate("/scrap-sell")}>
-                                        Sell Scrap
+                                    onClick={() => {
+                                        navigate('/');
+                                        setIsDropdownOpen(false);
+                                    }}
+                                >
+                                    Home
+                                </li>
+                                <li
+                                    className="block px-4 py-2 text-sm hover:bg-gray-200 cursor-pointer"
+                                    onClick={() => {
+                                        navigate('/scrap-rate');
+                                        setIsDropdownOpen(false);
+                                    }}
+                                >
+                                    Check Scrap Rate
+                                </li>
+                                <li
+                                    className="block px-4 py-2 text-sm hover:bg-gray-200 cursor-pointer"
+                                    onClick={() => {
+                                        navigate('/scrap-sell');
+                                        setIsDropdownOpen(false);
+                                    }}
+                                >
+                                    Sell Scrap
+                                </li>
+                                <li
+                                    className="block px-4 py-2 text-sm hover:bg-gray-200 cursor-pointer"
+                                    onClick={() => {
+                                        scrollToFooter();
+                                        setIsDropdownOpen(false);
+                                    }}
+                                >
+                                    Contact Us
                                 </li>
                             </ul>
-                        }
+                        )}
                     </div>
-                    
+
                     {/* Full navbar for larger screens */}
-                    <ul className="hidden sm:flex space-x-4 text-[#3ab44a] text-2xl">
-                        <li className="font-bold cursor-pointer" onClick={() => navigate("/")}>Home</li>
-                        <li className="font-bold cursor-pointer" onClick={() => navigate("/scrap-rate")}>Check Scrap Rate</li>
-                        <li className="font-bold cursor-pointer" onClick={() => navigate("/scrap-sell")}>Sell Scrap</li>
+                    <ul className="hidden sm:flex space-x-4 text-[#3ab44a] text-xl md:text-2xl lg:text-3xl">
+                        <li className="cursor-pointer hover:font-semibold" onClick={() => navigate('/')}>Home</li>
+                        <li className="cursor-pointer hover:font-semibold" onClick={() => navigate('/scrap-rate')}>Scrap Rate</li>
+                        <li className="cursor-pointer hover:font-semibold" onClick={() => navigate('/scrap-sell')}>Sell Scrap</li>
+                        <li className="cursor-pointer hover:font-semibold" onClick={scrollToFooter}>Contact Us</li>
                     </ul>
 
-                    {isActive && 
-                        <img 
-                            className="w-10 sm:w-14 rounded-full" 
-                            alt="user" 
-                            src={BG_IMG} 
-                        />
-                    }
-                    <button 
-                        className="font-bold px-2 sm:px-4 py-1 sm:py-2 bg-opacity-80 bg-[#3ab44a] rounded hover:bg-gray-600 transition-colors text-white text-xl"
-                        onClick={handleSignOut}>
-                        {isActive ? "Sign Out" : "Sign Up"}
-                    </button>
+                    {user ? (
+                        <UserCard />
+                    ) : (
+                        <button
+                            className="px-4 py-2 bg-[#3ab44a] text-white rounded hover:bg-gray-600 transition-colors md:text-xl"
+                            onClick={() => navigate('/signup')}
+                        >
+                            Sign Up
+                        </button>
+                    )}
                 </div>
+            )}
+
+            {isVendorPage &&
+                <ul className="hidden sm:flex items-center space-x-4 text-[#3ab44a] text-xl md:text-2xl lg:text-3xl">
+                    <li className="cursor-pointer hover:font-semibold">
+                        My DashBoard
+                    </li>
+                    <li className="cursor-pointer hover:font-semibold">
+                        <div className="flex items-center space-x-2">
+                            <UserCard />
+                        </div>
+                    </li>
+                </ul>
+
             }
+            {/* Scroll to Top Button */}
+            {showScrollTop && (
+                <button
+                    className="fixed bottom-20 right-4 p-4 bg-black text-white rounded-full shadow-md hover:bg-blue-600 transition-colors"
+                    onClick={scrollToTop}
+                >
+                    ↑
+                </button>
+            )}
         </div>
-    )
-}
+    );
+};
 
 export default Header;

@@ -1,20 +1,5 @@
 const MainCarausel = () => {
     return (
-        // <div className="pt-24 flex flex-col">
-        //     <div>
-        //         <img 
-        //             className=""
-        //             src="https://recycledepot.io/wp-content/uploads/2023/09/bai-2-1024x640.jpg" 
-        //             alt="main-page-bg"
-        //         />
-        //     </div>
-        //     <div className="absolute w-full h-1/2 flex justify-center items-center">
-        //         <h1 
-        //             className="text-4xl text-gray-700 font-extrabold">
-        //             Your Scrap Sell Partner
-        //         </h1>
-        //     </div>
-        // </div>
         <div className="relative pt-24 flex flex-col items-center justify-center">
             <img 
                 className="w-full h-auto object-cover" 
